@@ -18,7 +18,7 @@ const testFolder = 'C:\\linphone';
 
 
 
-var job = new CronJob('*/30 * * * * *', function() {
+var job = new CronJob('*/59 * * * * *', function() {
 
 	fs.readdir(testFolder, (err, files) => {
 		files.forEach(file => {
@@ -31,18 +31,27 @@ var job = new CronJob('*/30 * * * * *', function() {
 				// 	console.log('source.txt was copied to destination.txt');
 				// });
 
-				var params = {
-					Bucket: 'linphone',
-					Key: file,
-					Body: "Hello"
-				};
-		
-				s3.putObject(params, function (perr, pres) {
-					if (perr) {
-						console.log("Error uploading data: ", perr);
-					} else {
-						console.log("Successfully uploaded data to myBucket/myKey");
+				fs.readFile('c:\\linphone\\'+file, function read(err, data) {
+					if (err) {
+						throw err;
 					}
+
+					var params = {
+						Bucket: 'linphone',
+						Key: file,
+						Body: data
+					};
+			
+					s3.putObject(params, function (perr, pres) {
+						if (perr) {
+							console.log("Error uploading data: ", perr);
+						} else {
+							console.log("Successfully uploaded data to myBucket/myKey");
+						}
+					});
+	
+
+
 				});
 
 
@@ -53,25 +62,3 @@ var job = new CronJob('*/30 * * * * *', function() {
 	//   console.log('You will see this message every second');
 }, null, true, 'America/Los_Angeles');
 job.start();
-
-var job2 = new CronJob('*/59 * * * * *', function() {
-
-	fs.readdir(testFolder, (err, files) => {
-		files.forEach(file => {
-			if(file.substr( 0,4 ) == "2021" ){
-
-				console.log(file);
-
-				fs.rename('C:\\linphone\\'+file, 'C:\\linphone\\archive\\'+file, (err) => {
-					if (err) throw err;
-					console.log('source.txt was copied to destination.txt');
-				});
-
-
-			}
-		});
-	  });
-	  fs
-	//   console.log('You will see this message every second');
-}, null, true, 'America/Los_Angeles');
-job2.start();
